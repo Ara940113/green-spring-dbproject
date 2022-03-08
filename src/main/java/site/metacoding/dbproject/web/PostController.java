@@ -38,9 +38,10 @@ public class PostController {
     // @GetMapping({"/", "/post/list"})
     @GetMapping({ "/", "/post/list" })
     public String list(Model model) {
-        // 1. postRepository의 findAll() 호출
 
+        // 1. postRepository의 findAll() 호출
         // 2. model에 담기
+        model.addAttribute("posts", postRepository.findAll());
 
         return "post/list";
     }
