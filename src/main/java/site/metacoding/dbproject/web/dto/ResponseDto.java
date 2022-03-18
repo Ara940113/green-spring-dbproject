@@ -10,6 +10,5 @@ import lombok.NoArgsConstructor;
 public class ResponseDto<T> {
     private Integer code; // -1 실패, 1 성공
     private String msg;
-    private T data; // 제네릭 T - 뭘 넣을지 모르겠다
-
+    private T data;
 }

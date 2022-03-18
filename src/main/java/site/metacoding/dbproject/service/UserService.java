@@ -30,7 +30,6 @@ public class UserService {
         userRepository.save(user);
     }
 
-    @Transactional
     public User 로그인(User user) {
         return userRepository.mLogin(user.getUsername(), user.getPassword());
     }
@@ -48,7 +47,7 @@ public class UserService {
 
     @Transactional
     public User 유저수정(Integer id, User user) {
-        // 1.영속화
+        // 1. 영속화
         Optional<User> userOp = userRepository.findById(id);
 
         if (userOp.isPresent()) { // 영속화 됨
@@ -58,6 +57,7 @@ public class UserService {
 
             return userEntity;
         }
+
         return null;
-    } // 2.트랜잭션 종료 + 영속화 되어있는 것들 전부 더티체킹 (변경감지해서 디비에 flush)함
+    } // 2. 트랜잭션 종료 + 영속화 되어있는 것들 전부 더티체킹(변경감지해서 디비에 flush)함
 }

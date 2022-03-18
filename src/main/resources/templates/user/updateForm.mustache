@@ -16,7 +16,7 @@
         <div class="mb-3">
             <input type="email" class="form-control" value="{{principal.email}}" id="email" required>
         </div>
-        <button type="button" class="btn btn-dark" onclick="update()">수정완료</button>
+        <button type="button" class="btn btn-secondary" onclick="update()">수정완료</button>
     </form>
     <!-- 회원수정 폼 끝 -->
 
@@ -35,14 +35,11 @@
         let userJson = JSON.stringify(user);
         //let userJson = `{ "password" : "${user.password}", "email" : "${user.email}"}`;
         console.log(userJson);
-
         //let userObject = JSON.parse(userJson);
         //console.log(userObject);
-
         // 3. fetch 요청하기
         let id = $("#id").val();
         console.log(id);
-
         let response = await fetch("/s/user/" + id, {
             method: "PUT",
             body: userJson,
@@ -50,16 +47,13 @@
                 'Content-Type': 'application/json; charset=utf-8',
             }
         });
-
         let responseObject = await response.json();
-
         if (responseObject.code == 1) {
             alert("수정에 성공하였습니다.");
-            location.href = "/";
+            location.href = "/s/user/" + id;
         } else {
             alert("수정에 실패 : " + responseObject.msg)
         }
-
         // (1) content-type 을 json으로 설정하기
         // (2) put 메서드로 변경하기
         // (3) body 데이터 실어 보내기

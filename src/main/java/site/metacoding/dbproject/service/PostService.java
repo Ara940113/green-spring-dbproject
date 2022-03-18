@@ -21,16 +21,14 @@ public class PostService {
     public Page<Post> 글목록보기(Integer page) {
         PageRequest pq = PageRequest.of(page, 3);
         return postRepository.findAll(pq);
-
     }
 
-    @Transactional
     // 글상세보기, 글수정페이지
     public Post 글상세보기(Integer id) {
-        Optional<Post> postOP = postRepository.findById(id);
+        Optional<Post> postOp = postRepository.findById(id);
 
-        if (postOP.isPresent()) {
-            Post postEntity = postOP.get();
+        if (postOp.isPresent()) {
+            Post postEntity = postOp.get();
             return postEntity;
         } else {
             return null;
@@ -43,14 +41,14 @@ public class PostService {
     }
 
     @Transactional
-    public void 글삭제하기() {
-
+    public void 글삭제하기(Integer id) {
+        postRepository.deleteById(id); // 실패했을 때 내부적으로 exception 터짐
     }
 
     @Transactional
     public void 글쓰기(Post post, User principal) {
         post.setUser(principal); // User FK 추가!!
         postRepository.save(post);
-
     }
+
 }
