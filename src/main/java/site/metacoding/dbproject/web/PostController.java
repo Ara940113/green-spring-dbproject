@@ -1,11 +1,8 @@
 package site.metacoding.dbproject.web;
 
-import java.util.Optional;
-
 import javax.servlet.http.HttpSession;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,7 +19,7 @@ import site.metacoding.dbproject.domain.user.User;
 import site.metacoding.dbproject.service.PostService;
 import site.metacoding.dbproject.web.dto.ResponseDto;
 
-@RequiredArgsConstructor // final이 붙은 애들에 대한 생성자를 만들어준다.
+@RequiredArgsConstructor // final이 붙은 애들에 대한 생성자를 만들어 준다.
 @Controller
 public class PostController {
 
@@ -32,14 +29,23 @@ public class PostController {
     // GET 글쓰기 페이지 /post/writeForm - 인증 O
     @GetMapping("/s/post/writeForm")
     public String writeForm() {
+
         if (session.getAttribute("principal") == null) {
             return "redirect:/loginForm";
         }
+
         return "post/writeForm";
     }
 
+    // 메인페이지 (보통 주소가 두개다.) - 인증 X
+    // 글목록 페이지 /post/list, /
+    // @GetMapping({ "/", "/post/list" })
     @GetMapping({ "/", "/post/list" })
     public String list(@RequestParam(defaultValue = "0") Integer page, Model model) {
+        // 1. postRepository의 findAll() 호출
+        // 2. model에 담기
+        // model.addAttribute("posts",
+        // postRepository.findAll(Sort.by(Sort.Direction.DESC, "id")));
 
         Page<Post> pagePosts = postService.글목록보기(page);
 
@@ -50,23 +56,34 @@ public class PostController {
         return "post/list";
     }
 
-    // 이사!!
-    // GET 글상세보기 페이지 /post/{id} (삭제버튼 만들어 두면됨, 수정버튼 만들어 두면됨) - 인증 X
-    @GetMapping("/post/{id}") // Get요청에 /post 제외 시키기
+    // 글 상세보기 페이지 /post/{id} (삭제버튼 만들어 두면 됨, 수정버튼 만들어 두면 됨)
+    // 인증 X
+    @GetMapping("/post/{id}") // Get 요청에 /post 제외 시키기
     public String detail(@PathVariable Integer id, Model model) {
+
+        User principal = (User) session.getAttribute("principal");
 
         Post postEntity = postService.글상세보기(id);
 
+        // 게시물이 없으면 error 페이지 이동
         if (postEntity == null) {
             return "error/page1";
-        } else {
-            model.addAttribute("post", postEntity);
-            return "post/detail";
         }
 
+        if (principal != null) {
+            // 권한 확인해서 view로 값 넘김
+            if (principal.getId() == postEntity.getUser().getId()) { // 권한이 있다는 뜻
+                model.addAttribute("pageOwner", true);
+            } else {
+                model.addAttribute("pageOwner", false);
+            }
+        }
+
+        model.addAttribute("post", postEntity);
+        return "post/detail";
     }
 
-    // GET 글수정 페이지 /post/{id}/updateForm - 인증 O
+    // 글 수정 페이지 /post/{id}/updateForm - 인증 O
     @GetMapping("/s/post/{id}/updateForm")
     public String updateForm(@PathVariable Integer id) {
         return "post/updateForm"; // ViewResolver 도움 받음.
@@ -76,14 +93,14 @@ public class PostController {
     @DeleteMapping("/s/post/{id}")
     public @ResponseBody ResponseDto<String> delete(@PathVariable Integer id) {
 
+        // 인증과 권한체크
+        // 1. 인증 (세션필요)
         User principal = (User) session.getAttribute("principal");
-
         if (principal == null) { // 로그인이 안됐다는 뜻
-            return new ResponseDto<String>(-1, "로그인이 되지 않았습니다", null);
+            return new ResponseDto<String>(-1, "로그인이 되지 않았습니다.", null);
         }
-
+        // 2. 권한
         Post postEntity = postService.글상세보기(id);
-
         if (principal.getId() != postEntity.getUser().getId()) { // 권한이 없다는 뜻
             return new ResponseDto<String>(-1, "해당 글을 삭제할 권한이 없습니다.", null);
         }
@@ -99,12 +116,11 @@ public class PostController {
         return "redirect:/post/" + id;
     }
 
-    // 이사!!
     // POST 글쓰기 /post - 글목록으로 가기 - 인증 O
     @PostMapping("/s/post")
     public String write(Post post) {
 
-        // title, content 1. null검사, 2.공백검사, 3.길이검사 .........
+        // title, content 1. null 검사, 2. 공백 검사, 3. 길이 검사 등등....
 
         if (session.getAttribute("principal") == null) {
             return "redirect:/loginForm";
