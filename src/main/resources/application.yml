@@ -11,6 +11,7 @@ server:
 # ddl-auto: none 은 서버 실행할 때마다 아무것도 하지 않는 옵션이다.
 # ddl-auto : update 는 필드 수정시에 필요한 옵션이다 (필드삭제는 db에 가서 직접@!!)
 spring:
+  
   mustache:
     expose-session-attributes: true
   datasource:
@@ -22,6 +23,7 @@ spring:
 
 
   jpa:
+    open-in-view: true
     hibernate:
       ddl-auto: update
       naming:
